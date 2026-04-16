@@ -1,5 +1,5 @@
 import React from 'react'
-import CarromGame from './components/CarromGame.jsx'
+import CarromGame from './component/CarromGame.jsx'
 
 function App() {
   return <CarromGame />
