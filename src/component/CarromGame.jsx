@@ -931,6 +931,7 @@ const globalCss = `
     overflow: hidden;
     position: fixed;
     touch-action: none;
+    
   }
   #root { height: 100%; }
 `;
