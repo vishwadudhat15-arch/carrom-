@@ -1,0 +1,70 @@
+:root {
+  --primary: #c19a6b;
+  --primary-dark: #8e6d45;
+  --secondary: #2c1e12;
+  --accent: #d4af37;
+  --bg-dark: #120c08;
+  --text-light: #f5e6d3;
+  --text-dim: #a18a75;
+  --glass: rgba(44, 30, 18, 0.7);
+  --shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  --font-main: 'Outfit', sans-serif;
+  --font-display: 'Playfair Display', serif;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: var(--font-main);
+  background: radial-gradient(circle at center, #241a12 0%, #0c0805 100%);
+  color: var(--text-light);
+  min-height: 100dvh;
+  height: 100dvh;
+  overflow: hidden;
+  overflow-y: auto;
+}
+
+#root {
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+button {
+  cursor: pointer;
+  border: none;
+  outline: none;
+  font-family: var(--font-main);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.premium-card {
+  background: var(--glass);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
+  box-shadow: var(--shadow);
+}
+
+.gold-text {
+  background: linear-gradient(to bottom, #f7e09e 0%, #d4af37 50%, #8e6d45 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #000;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--primary-dark);
+  border-radius: 10px;
+}
