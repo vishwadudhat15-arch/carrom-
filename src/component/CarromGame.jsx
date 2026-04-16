@@ -329,39 +329,90 @@ function drawStriker(ctx, s) {
 
 function drawAimGuide(ctx, striker, aimAngle, power) {
   ctx.save();
-  ctx.setLineDash([5, 5]);
-  ctx.strokeStyle = "rgba(120,160,255,0.45)";
-  ctx.lineWidth = 1.5;
-  ctx.beginPath();
-  ctx.moveTo(striker.x, striker.y);
-  ctx.lineTo(
-    striker.x + Math.cos(aimAngle) * BASE * 1.4,
-    striker.y + Math.sin(aimAngle) * BASE * 1.4
-  );
-  ctx.stroke();
-  ctx.setLineDash([]);
 
-  if (power > 3) {
-    const pd = (power / 100) * BASE * 0.3;
-    ctx.strokeStyle = `rgba(255,120,0,${0.3 + power / 200})`;
-    ctx.lineWidth = 5;
-    ctx.lineCap = "round";
+  const cos = Math.cos(aimAngle);
+  const sin = Math.sin(aimAngle);
+  const powerFrac = power / 100;
+
+  // ── 1. Trajectory dotted line ─────────────────────────────────────────────
+  // Fade dots out as they get further away from the striker
+  const numDots = 14;
+  const dotSpacing = BASE * 0.045;
+  for (let i = 1; i <= numDots; i++) {
+    const fade = 1 - i / (numDots + 1);
+    const alpha = fade * 0.9 * (0.5 + powerFrac * 0.5);
+    const dotR = 3 * fade;
+    const dx = striker.x + cos * dotSpacing * i;
+    const dy = striker.y + sin * dotSpacing * i;
     ctx.beginPath();
-    ctx.moveTo(striker.x, striker.y);
-    ctx.lineTo(
-      striker.x - Math.cos(aimAngle) * pd,
-      striker.y - Math.sin(aimAngle) * pd
-    );
-    ctx.stroke();
+    ctx.arc(dx, dy, dotR, 0, Math.PI * 2);
+    ctx.fillStyle = `rgba(255,255,255,${alpha})`;
+    ctx.fill();
   }
 
-  ctx.strokeStyle = "rgba(255,200,0,0.35)";
-  ctx.lineWidth = 1;
-  ctx.setLineDash([3, 3]);
+  // ── 2. Arrowhead at the end of the visible trajectory ─────────────────────
+  const arrowDist = dotSpacing * numDots;
+  const ax = striker.x + cos * arrowDist;
+  const ay = striker.y + sin * arrowDist;
+  const headLen = 10;
+  const spread = Math.PI / 6;
+  const alpha = 0.7 + powerFrac * 0.3;
+  ctx.strokeStyle = `rgba(255,255,255,${alpha})`;
+  ctx.lineWidth = 2.5;
+  ctx.lineCap = "round";
   ctx.beginPath();
-  ctx.arc(striker.x, striker.y, SR + 8, 0, Math.PI * 2);
+  ctx.moveTo(ax - cos * headLen * 1.5, ay - sin * headLen * 1.5);
+  ctx.lineTo(ax, ay);
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.moveTo(ax, ay);
+  ctx.lineTo(
+    ax - headLen * Math.cos(aimAngle - spread),
+    ay - headLen * Math.sin(aimAngle - spread)
+  );
+  ctx.moveTo(ax, ay);
+  ctx.lineTo(
+    ax - headLen * Math.cos(aimAngle + spread),
+    ay - headLen * Math.sin(aimAngle + spread)
+  );
+  ctx.stroke();
+
+  // ── 3. Pull-back power bar (behind striker) ───────────────────────────────
+  if (power > 3) {
+    const pd = powerFrac * BASE * 0.28;
+    // Glow outer
+    ctx.lineCap = "round";
+    ctx.lineWidth = 8;
+    ctx.strokeStyle = `rgba(255,100,0,${0.12 + powerFrac * 0.18})`;
+    ctx.beginPath();
+    ctx.moveTo(striker.x, striker.y);
+    ctx.lineTo(striker.x - cos * pd, striker.y - sin * pd);
+    ctx.stroke();
+    // Core bar
+    const r = Math.min(255, Math.round(255 * powerFrac));
+    const g = Math.max(0, Math.round(220 - 200 * powerFrac));
+    ctx.lineWidth = 4;
+    ctx.strokeStyle = `rgba(${r},${g},0,${0.6 + powerFrac * 0.35})`;
+    ctx.beginPath();
+    ctx.moveTo(striker.x, striker.y);
+    ctx.lineTo(striker.x - cos * pd, striker.y - sin * pd);
+    ctx.stroke();
+    // Bright tip dot
+    ctx.beginPath();
+    ctx.arc(striker.x - cos * pd, striker.y - sin * pd, 4, 0, Math.PI * 2);
+    ctx.fillStyle = `rgba(255,220,80,${0.7 + powerFrac * 0.3})`;
+    ctx.fill();
+  }
+
+  // ── 4. Striker ring ───────────────────────────────────────────────────────
+  ctx.beginPath();
+  ctx.arc(striker.x, striker.y, SR + 7, 0, Math.PI * 2);
+  ctx.strokeStyle = `rgba(255,210,60,${0.25 + powerFrac * 0.3})`;
+  ctx.lineWidth = 1.5;
+  ctx.setLineDash([4, 4]);
   ctx.stroke();
   ctx.setLineDash([]);
+
   ctx.restore();
 }
 
@@ -448,8 +499,8 @@ export default function CarromGame() {
 
     const wr = gs.pieces.filter((p) => !p.pocketed && p.type === "white").length;
     const br = gs.pieces.filter((p) => !p.pocketed && p.type === "black").length;
-    const wJustPocketed = (9 - gs.wPrev) - (9 - wr);
-    const bJustPocketed = (9 - gs.bPrev) - (9 - br);
+    const wJustPocketed = gs.wPrev - wr;
+    const bJustPocketed = gs.bPrev - br;
     const queenPiece = gs.pieces.find((p) => p.type === "queen");
     const queenJustPocketed = gs.queenOut && queenPiece && queenPiece.pocketed;
 
@@ -573,12 +624,16 @@ export default function CarromGame() {
 
             POCKETS.forEach((pk) => {
               const d = Math.hypot(p.x - pk.x, p.y - pk.y);
-              if (d < POCKET_R + 12) {
+              // If the coin's center crosses the rim (d < POCKET_R), >50% is over the hole.
+              // It will fall in. Otherwise, it stands by perfectly on the edge!
+              if (d < POCKET_R) {
                 pocketGravity = true;
                 pullX = (pk.x - p.x) * 0.08;
                 pullY = (pk.y - p.y) * 0.08;
               }
-              if (d < POCKET_R + 4) {
+
+              // It is fully collected once it visually sinks inward
+              if (d < POCKET_R * 0.5) {
                 insidePocket = true;
               }
             });
@@ -748,7 +803,7 @@ export default function CarromGame() {
 
   // ─── COMPUTED ────────────────────────────────────────────────────────────────
   const powerPct = Math.round(uiPower);
-  const powerColor = powerPct < 40 ? "#44cc44" : powerPct < 70 ? "#ffcc00" : "#ff4400";
+  const powerColor = powerPct < 40 ? "#44cc44" : powerPct < 55 ? "#ffcc00" : "#ff4400";
   const isAITurn = gameMode === "pvc" && uiTurn === 1;
 
   // ─── RENDER ──────────────────────────────────────────────────────────────────
