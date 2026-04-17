@@ -994,7 +994,7 @@ export default function CarromGame() {
             <div style={s.scoreLabel}>BEIGE</div>
             <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
               <div style={s.scoreNum}>{uiScores.w}</div>
-              {uiQueenOwner === 0 && <span style={{ color: "#ff4444", fontSize: 22, lineHeight: 1 }}>♛</span>}
+              <span style={{ color: uiQueenOwner === 0 ? "#ff4444" : "#554433", fontSize: 22, lineHeight: 1, opacity: uiQueenOwner === 0 ? 1 : 0.3, transition: "all 0.3s" }}>♛</span>
             </div>
           </div>
 
@@ -1012,7 +1012,7 @@ export default function CarromGame() {
             <div style={{ ...s.scoreCircle, background: "#1a1a1a", border: "1px solid #555" }} />
             <div style={s.scoreLabel}>BLACK</div>
             <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
-              {uiQueenOwner === 1 && <span style={{ color: "#ff4444", fontSize: 22, lineHeight: 1 }}>♛</span>}
+              <span style={{ color: uiQueenOwner === 1 ? "#ff4444" : "#554433", fontSize: 22, lineHeight: 1, opacity: uiQueenOwner === 1 ? 1 : 0.3, transition: "all 0.3s" }}>♛</span>
               <div style={s.scoreNum}>{uiScores.b}</div>
             </div>
           </div>
