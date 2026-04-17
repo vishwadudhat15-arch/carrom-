@@ -1029,8 +1029,7 @@ export default function CarromGame() {
           />
         </div>
 
-        <div style={{ ...s.sliderWrap, ...(isAITurn || powerPct > 0 ? { opacity: 0.3, pointerEvents: "none" } : {}) }}>
-          <div style={s.sliderIcon}>◄</div>
+        <div style={{ ...s.sliderWrap, ...(isAITurn || powerPct > 0 ? { visibility: "hidden", pointerEvents: "none" } : {}) }}>
           <input
             ref={sliderRef}
             type="range"
@@ -1042,7 +1041,6 @@ export default function CarromGame() {
             onInput={handleSliderChange}
             style={s.positionSlider}
           />
-          <div style={s.sliderIcon}>►</div>
         </div>
 
         <div style={s.statusBar}>{uiStatus || "\u00A0"}</div>
@@ -1078,16 +1076,16 @@ const globalCss = `
 
 const s = {
   sliderWrap: {
-    display: "flex", alignItems: "center", gap: 12,
-    width: "100%", padding: "6px 16px", marginTop: 2,
+    display: "flex", alignItems: "center", width: "58.8%",
+    padding: "6px 2px", marginTop: 2,
     background: "rgba(0,0,0,0.5)", borderRadius: 8,
-    transition: "opacity 0.2s", flexShrink: 0,
+    flexShrink: 0,
   },
   sliderIcon: { fontSize: 13, color: "#8a7040" },
   positionSlider: {
     flex: 1, WebkitAppearance: "none", appearance: "none",
     height: 8, background: "#111", borderRadius: 4, outline: "none",
-    border: "1px solid #333", cursor: "pointer",
+    border: "1px solid #333", cursor: "pointer", margin: 0,
   },
   root: {
     width: "100vw", height: "100dvh",
