@@ -518,6 +518,7 @@ export default function CarromGame() {
   const [screen, setScreen] = useState("menu");
   const [uiTurn, setUiTurn] = useState(0);
   const [uiScores, setUiScores] = useState({ w: 9, b: 9 });
+  const [uiQueenOwner, setUiQueenOwner] = useState(-1);
   const [uiPower, setUiPower] = useState(0);
   const [uiStatus, setUiStatus] = useState("");
   const [uiWinner, setUiWinner] = useState({ player: "", pts: 0 });
@@ -543,6 +544,7 @@ export default function CarromGame() {
     }
     gs.queenOut = true;
     gs.queenPendingCoverBy = -1;
+    gs.queenOwner = -1;
   }, []);
 
   const endGame = useCallback((winner) => {
@@ -550,7 +552,7 @@ export default function CarromGame() {
     if (!gs) return;
 
     let points = gs.pieces.filter(p => !p.pocketed && p.type === (winner === 0 ? "black" : "white")).length;
-    if (!gs.queenOut && gs.queenPendingCoverBy === -1) points += 5; // Queen points
+    if (gs.queenOwner === winner) points += 5; // Queen points
 
     gs.phase = "gameover";
     setUiWinner({ player: winner === 0 ? "Beige" : "Black", pts: points });
@@ -650,6 +652,7 @@ export default function CarromGame() {
     if (gs.queenPendingCoverBy === gs.turn) {
       if (myPocketed > 0 && !foul) {
         gs.queenPendingCoverBy = -1;
+        gs.queenOwner = gs.turn;
         msg = "♛ Queen COVERED!" + (msg ? " " + msg : "");
       } else {
         gs.queenPendingCoverBy = -1; returnQueen(gs);
@@ -660,7 +663,7 @@ export default function CarromGame() {
       if (foul) {
         returnQueen(gs); msg += " ❌ Queen returned.";
       } else if (myPocketed > 0 && oppPocketed === 0) {
-        gs.queenOut = false; gs.queenPendingCoverBy = -1; switchTurn = false;
+        gs.queenOut = false; gs.queenPendingCoverBy = -1; gs.queenOwner = gs.turn; switchTurn = false;
         msg = "♛ Queen pocketed & COVERED!";
       } else {
         gs.queenOut = false; gs.queenPendingCoverBy = gs.turn; switchTurn = false;
@@ -688,6 +691,7 @@ export default function CarromGame() {
 
     gs.wPrev = wr; gs.bPrev = br;
     setUiScores({ w: wr, b: br });
+    setUiQueenOwner(gs.queenOwner !== undefined ? gs.queenOwner : -1);
     setUiStatus(msg.trim());
 
     if (win !== -1) {
@@ -851,12 +855,13 @@ export default function CarromGame() {
       pieces, striker: {}, phase: "aim", turn: 0,
       aimAngle: -Math.PI / 2, power: 0, strikerOffsetX: 0,
       dragMode: null, resolving: false, queenOut: true,
-      queenPendingCoverBy: -1, wPrev: 9, bPrev: 9,
+      queenPendingCoverBy: -1, queenOwner: -1, wPrev: 9, bPrev: 9,
     };
     resetStriker(gsRef.current, 0, 0);
 
     setGameMode(mode);
     setUiTurn(0); setUiScores({ w: 9, b: 9 });
+    setUiQueenOwner(-1);
     setUiPower(0); setUiStatus("Beige's turn — drag to aim");
     setUiWinner({ player: "", pts: 0 }); setScreen("game");
   }, [resetStriker]);
@@ -986,7 +991,9 @@ export default function CarromGame() {
         <div style={s.scorebar}>
           <div style={{ ...s.scoreBox, ...(uiTurn === 0 ? s.scoreActive : {}) }}>
             <div style={s.scoreCircle} />
-            <div style={s.scoreLabel}>BEIGE</div>
+            <div style={{...s.scoreLabel, display:"flex", alignItems:"center", gap:2}}>
+              BEIGE {uiQueenOwner === 0 && <span style={{color:"#ff4444", fontSize:10}}>♛</span>}
+            </div>
             <div style={s.scoreNum}>{uiScores.w}</div>
           </div>
 
@@ -1002,7 +1009,9 @@ export default function CarromGame() {
 
           <div style={{ ...s.scoreBox, ...(uiTurn === 1 ? s.scoreActive : {}) }}>
             <div style={{ ...s.scoreCircle, background: "#1a1a1a", border: "1px solid #555" }} />
-            <div style={s.scoreLabel}>BLACK</div>
+            <div style={{...s.scoreLabel, display:"flex", alignItems:"center", gap:2}}>
+              {uiQueenOwner === 1 && <span style={{color:"#ff4444", fontSize:10}}>♛</span>} BLACK
+            </div>
             <div style={s.scoreNum}>{uiScores.b}</div>
           </div>
         </div>
