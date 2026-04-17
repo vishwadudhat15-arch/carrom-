@@ -558,9 +558,12 @@ export default function CarromGame() {
     if (gs.queenOwner === winner) points += 5; // Queen points
 
     gs.phase = "gameover";
-    setUiWinner({ player: winner === 0 ? "Beige" : "Black", pts: points });
+    const winnerName = winner === 0
+      ? (gameMode === "pvc" ? "You" : "Player 1")
+      : (gameMode === "pvc" ? "AI" : "Player 2");
+    setUiWinner({ player: winnerName, pts: points });
     setScreen("gameover");
-  }, []);
+  }, [gameMode]);
 
   const shoot = useCallback(() => {
     const gs = gsRef.current;
@@ -718,7 +721,10 @@ export default function CarromGame() {
       setUiPower(0);
       setUiTurn(nextTurn);
       setUiPhase("aim");
-      setUiStatus(nextTurn === 0 ? "Beige's turn — drag to aim" : "Black's turn — drag to aim");
+      const turnMsg = nextTurn === 0
+        ? (gameMode === "pvc" ? "Your turn — drag to aim" : "Player 1 turn — drag to aim")
+        : (gameMode === "pvc" ? "AI turn — thinking..." : "Player 2 turn — drag to aim");
+      setUiStatus(turnMsg);
       if (gameMode === "pvc" && nextTurn === 1) aiTimerRef.current = setTimeout(doAI, 900);
     }, 750);
   }, [endGame, returnQueen, resetStriker, doAI, gameMode]);
@@ -971,9 +977,9 @@ export default function CarromGame() {
           <div style={s.goTitle}>{uiWinner.player} Wins!</div>
           <div style={s.goSub}>Reward: {uiWinner.pts} points based on remaining coins & queen rules!</div>
           <div style={s.finalScore}>
-            <div style={s.fsBox}><div style={s.fsLabel}>BEIGE</div><div style={s.fsNum}>{uiScores.w}</div><div style={s.fsHint}>left</div></div>
+            <div style={s.fsBox}><div style={s.fsLabel}>{gameMode === "pvc" ? "YOU" : "P1"}</div><div style={s.fsNum}>{uiScores.w}</div><div style={s.fsHint}>left</div></div>
             <div style={s.fsDivider} />
-            <div style={s.fsBox}><div style={s.fsLabel}>BLACK</div><div style={s.fsNum}>{uiScores.b}</div><div style={s.fsHint}>left</div></div>
+            <div style={s.fsBox}><div style={s.fsLabel}>{gameMode === "pvc" ? "AI" : "P2"}</div><div style={s.fsNum}>{uiScores.b}</div><div style={s.fsHint}>left</div></div>
           </div>
           <button style={{ ...s.primaryBtn, maxWidth: 240 }} onClick={() => startGame(gameMode)}>Play Again</button>
           <button style={{ ...s.secBtn, maxWidth: 240, marginTop: 8 }} onClick={goMenu}>Main Menu</button>
@@ -990,18 +996,28 @@ export default function CarromGame() {
         <div style={s.header}>
           <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
             <button style={s.menuBtn} onClick={goMenu}>← MENU</button>
-            <div style={{ ...s.scoreHeaderBox, ...(uiTurn === 0 ? s.scoreActive : {}) }}>
-              <div style={s.scoreNumSmall}>{uiScores.w}</div>
-              <span style={{ color: uiQueenOwner === 0 ? "#ff4444" : "#554433", fontSize: 24, opacity: uiQueenOwner === 0 ? 1 : 0.3 }}>♛</span>
+            <div style={{ display: "flex", flexDirection: 'column', alignItems: "center" }}>
+              <div style={{ ...s.scoreHeaderBox, ...(uiTurn === 0 ? s.scoreActive : {}) }}>
+                <div style={s.scoreNumSmall}>{uiScores.w}</div>
+                <span style={{ color: uiQueenOwner === 0 ? "#ff4444" : "#554433", fontSize: 24, opacity: uiQueenOwner === 0 ? 1 : 0.3 }}>♛</span>
+              </div>
+              <div style={{ fontSize: 9, color: "#665544", marginTop: -2, width: '100%', textAlign: 'center', fontWeight: 700 }}>
+                {gameMode === "pvc" ? "YOU" : "P1"}
+              </div>
             </div>
           </div>
 
           <span style={s.headerTitle}>CARROM</span>
 
           <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-            <div style={{ ...s.scoreHeaderBox, ...(uiTurn === 1 ? s.scoreActive : {}) }}>
-              <span style={{ color: uiQueenOwner === 1 ? "#ff4444" : "#554433", fontSize: 24, opacity: uiQueenOwner === 1 ? 1 : 0.3 }}>♛</span>
-              <div style={s.scoreNumSmall}>{uiScores.b}</div>
+            <div style={{ display: "flex", flexDirection: 'column', alignItems: "center" }}>
+              <div style={{ ...s.scoreHeaderBox, ...(uiTurn === 1 ? s.scoreActive : {}) }}>
+                <span style={{ color: uiQueenOwner === 1 ? "#ff4444" : "#554433", fontSize: 24, opacity: uiQueenOwner === 1 ? 1 : 0.3 }}>♛</span>
+                <div style={s.scoreNumSmall}>{uiScores.b}</div>
+              </div>
+              <div style={{ fontSize: 9, color: "#665544", marginTop: -2, width: '100%', textAlign: 'center', fontWeight: 700 }}>
+                {gameMode === "pvc" ? "AI" : "P2"}
+              </div>
             </div>
             <span style={s.modeTag}>{gameMode === "pvc" ? "🤖" : "👥"}</span>
           </div>
@@ -1013,7 +1029,7 @@ export default function CarromGame() {
             {uiTurn === 0 ? (
               /* P1 is playing: Show their SPEED here (Opposite Side) */
               <>
-                <div style={s.turnText}>Beige's Turn</div>
+                <div style={s.turnText}>{gameMode === "pvc" ? "Your Turn" : "Player 1 Turn"}</div>
                 <div style={s.powerTrack}>
                   <div style={{ ...s.powerFill, width: `${powerPct}%`, background: powerColor }} />
                 </div>
@@ -1022,7 +1038,7 @@ export default function CarromGame() {
             ) : (uiTurn === 1 && !isAITurn) ? (
               /* P2 is playing: Show their POSITION here (Same Side) */
               <>
-                <div style={s.turnText}>Black's Turn</div>
+                <div style={s.turnText}>Player 2 Turn</div>
                 {(uiPhase === "aim" && powerPct === 0 && !uiStatus.includes("⚡") && !uiStatus.includes("✅")) ? (
                   <div style={{ ...s.sliderWrap, width: "80%", margin: "4px auto", background: "transparent" }}>
                     <input
@@ -1042,7 +1058,7 @@ export default function CarromGame() {
                 )}
               </>
             ) : isAITurn ? (
-              <div style={s.turnText}>🤖 AI thinking…</div>
+              <div style={s.turnText}>🤖 AI Turn</div>
             ) : null}
           </div>
         </div>
@@ -1066,16 +1082,20 @@ export default function CarromGame() {
             {uiTurn === 1 ? (
               /* P2 is playing: Show their SPEED here (Opposite Side) */
               <>
-                <div style={s.turnText}>{isAITurn ? "🤖 AI thinking…" : "Black's Turn"}</div>
-                <div style={s.powerTrack}>
-                  <div style={{ ...s.powerFill, width: `${powerPct}%`, background: powerColor }} />
-                </div>
-                <div style={s.powerLabel}>{powerPct > 0 ? `Power ${powerPct}%` : "·"}</div>
+                <div style={s.turnText}>{gameMode === "pvc" ? "AI Turn" : "Player 2 Turn"}</div>
+                {!isAITurn && (
+                  <>
+                    <div style={s.powerTrack}>
+                      <div style={{ ...s.powerFill, width: `${powerPct}%`, background: powerColor }} />
+                    </div>
+                    <div style={s.powerLabel}>{powerPct > 0 ? `Power ${powerPct}%` : "·"}</div>
+                  </>
+                )}
               </>
             ) : (uiTurn === 0 && !isAITurn) ? (
               /* P1 is playing: Show their POSITION here (Same Side) */
               <>
-                <div style={s.turnText}>Beige's Turn</div>
+                <div style={s.turnText}>{gameMode === "pvc" ? "Your Turn" : "Player 1 Turn"}</div>
                 {(uiPhase === "aim" && powerPct === 0 && !uiStatus.includes("⚡") && !uiStatus.includes("✅")) ? (
                   <div style={{ ...s.sliderWrap, width: "80%", margin: "4px auto", background: "transparent" }}>
                     <input
