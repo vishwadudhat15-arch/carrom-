@@ -993,29 +993,32 @@ export default function CarromGame() {
     <div style={s.root}>
       <style>{globalCss}</style>
       <div style={s.gameWrap}>
-        <div style={s.header}>
-          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-            <button style={s.menuBtn} onClick={goMenu}>← MENU</button>
-            <div style={{ display: "flex", flexDirection: 'column', alignItems: "center" }}>
-              <div style={{ ...s.scoreHeaderBox, ...(uiTurn === 0 ? s.scoreActive : {}) }}>
-                <div style={s.scoreNumSmall}>{uiScores.w}</div>
-                <span style={{ color: uiQueenOwner === 0 ? "#ff4444" : "#554433", fontSize: 24, opacity: uiQueenOwner === 0 ? 1 : 0.3 }}>♛</span>
-              </div>
-              <div style={{ fontSize: 9, color: "#665544", marginTop: -2, width: '100%', textAlign: 'center', fontWeight: 700 }}>
-                {gameMode === "pvc" ? "YOU" : "P1"}
-              </div>
+        <div style={{ position: "absolute", top: 10, left: 10, zIndex: 10 }}>
+          <button style={s.menuBtn} onClick={goMenu}>← MENU</button>
+        </div>
+
+        <div style={{ ...s.header, marginTop: 40, position: "relative" }}>
+          {/* Player 1 (YOU) Score on the Left */}
+          <div style={{ display: "flex", flexDirection: 'column', alignItems: "center" }}>
+            <div style={{ ...s.scoreHeaderBox, ...(uiTurn === 0 ? s.scoreActive : {}) }}>
+              <div style={s.scoreNumSmall}>{uiScores.w}</div>
+              <span style={{ color: uiQueenOwner === 0 ? "#ff4444" : "#554433", fontSize: 24, opacity: uiQueenOwner === 0 ? 1 : 0.3 }}>♛</span>
+            </div>
+            <div style={{ fontSize: 20, color: "#d4b878", marginTop: -2, fontWeight: 700, letterSpacing: 1 }}>
+              {gameMode === "pvc" ? "YOU" : "P1"}
             </div>
           </div>
 
-          <span style={s.headerTitle}>CARROM</span>
+          <span style={{ ...s.headerTitle, position: "absolute", left: "50%", transform: "translateX(-50%)" }}>CARROM</span>
 
+          {/* Player 2 (AI/P2) Score on the Right */}
           <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
             <div style={{ display: "flex", flexDirection: 'column', alignItems: "center" }}>
               <div style={{ ...s.scoreHeaderBox, ...(uiTurn === 1 ? s.scoreActive : {}) }}>
                 <span style={{ color: uiQueenOwner === 1 ? "#ff4444" : "#554433", fontSize: 24, opacity: uiQueenOwner === 1 ? 1 : 0.3 }}>♛</span>
                 <div style={s.scoreNumSmall}>{uiScores.b}</div>
               </div>
-              <div style={{ fontSize: 9, color: "#665544", marginTop: -2, width: '100%', textAlign: 'center', fontWeight: 700 }}>
+              <div style={{ fontSize: 20, color: "#d4b878", marginTop: -2, fontWeight: 700, letterSpacing: 1 }}>
                 {gameMode === "pvc" ? "AI" : "P2"}
               </div>
             </div>
@@ -1038,7 +1041,7 @@ export default function CarromGame() {
             ) : (uiTurn === 1 && !isAITurn) ? (
               /* P2 is playing: Show their POSITION here (Same Side) */
               <>
-                <div style={s.turnText}>Player 2 Turn</div>
+                <div style={s.turnText}>{gameMode === "pvc" ? "Your Turn" : "Player 1 Turn"}</div>
                 {(uiPhase === "aim" && powerPct === 0 && !uiStatus.includes("⚡") && !uiStatus.includes("✅")) ? (
                   <div style={{ ...s.sliderWrap, width: "80%", margin: "4px auto", background: "transparent" }}>
                     <input
@@ -1119,7 +1122,7 @@ export default function CarromGame() {
         </div>
 
         <div style={s.statusBar}>{uiStatus || "\u00A0"}</div>
-        <div style={s.hint}>Move line to position · Pull back on board to shoot</div>
+        <div style={s.hint}>Move line to position · Pull back on board to short</div>
       </div>
     </div>
   );
@@ -1266,14 +1269,15 @@ const s = {
   },
   headerTitle: {
     fontFamily: "'Bebas Neue',sans-serif",
-    fontSize: 16, letterSpacing: 5, color: "#f0e8d0",
+    fontSize: 24, letterSpacing: 5, color: "#f0e8d0",
   },
-  modeTag: { fontSize: 11, color: "#666" },
+  modeTag: { fontSize: 36, filter: "drop-shadow(0 2px 4px rgba(0,0,0,0.5))" },
   menuBtn: {
-    background: "transparent", border: "1px solid #333",
-    color: "#888", padding: "5px 10px", borderRadius: 3,
+    background: "transparent", border: "1px solid #444",
+    color: "#aaa", padding: "6px 16px", borderRadius: 4,
     cursor: "pointer", fontFamily: "'Rajdhani',sans-serif",
-    fontSize: 11, letterSpacing: 1,
+    fontSize: 16, letterSpacing: 1,
+    boxShadow: "0 2px 8px rgba(0,0,0,0.3)",
   },
   scorebar: {
     display: "flex", alignItems: "center", gap: 6, width: "100%",
@@ -1301,7 +1305,7 @@ const s = {
     fontSize: 18, color: "#f0e8d0", lineHeight: 1,
   },
   centerInfo: { flex: 1, textAlign: "center" },
-  turnText: { fontSize: 10, color: "#d4b878", fontWeight: 700, letterSpacing: 1, marginBottom: 2 },
+  turnText: { fontSize: 16, color: "#d4b878", fontWeight: 700, letterSpacing: 1, marginBottom: 2 },
   powerTrack: {
     height: 4, background: "rgba(0,0,0,0.5)",
     borderRadius: 3, border: "1px solid #222", overflow: "hidden",
@@ -1328,7 +1332,8 @@ const s = {
     width: "100%", flexShrink: 0,
   },
   hint: {
-    fontSize: "clamp(7px,0.8vw,9px)", color: "#333",
-    letterSpacing: 1, textAlign: "center", flexShrink: 0, paddingBottom: 2,
+    fontSize: 14, color: "#c8a840", fontWeight: 700,
+    letterSpacing: 0.5, textAlign: "center", flexShrink: 0, paddingBottom: 2,
+    textShadow: "0 1px 2px rgba(0,0,0,0.5)",
   },
 };
