@@ -991,10 +991,11 @@ export default function CarromGame() {
         <div style={s.scorebar}>
           <div style={{ ...s.scoreBox, ...(uiTurn === 0 ? s.scoreActive : {}) }}>
             <div style={s.scoreCircle} />
-            <div style={{...s.scoreLabel, display:"flex", alignItems:"center", gap:2}}>
-              BEIGE {uiQueenOwner === 0 && <span style={{color:"#ff4444", fontSize:10}}>♛</span>}
+            <div style={s.scoreLabel}>BEIGE</div>
+            <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+              <div style={s.scoreNum}>{uiScores.w}</div>
+              {uiQueenOwner === 0 && <span style={{ color: "#ff4444", fontSize: 22, lineHeight: 1 }}>♛</span>}
             </div>
-            <div style={s.scoreNum}>{uiScores.w}</div>
           </div>
 
           <div style={s.centerInfo}>
@@ -1009,10 +1010,11 @@ export default function CarromGame() {
 
           <div style={{ ...s.scoreBox, ...(uiTurn === 1 ? s.scoreActive : {}) }}>
             <div style={{ ...s.scoreCircle, background: "#1a1a1a", border: "1px solid #555" }} />
-            <div style={{...s.scoreLabel, display:"flex", alignItems:"center", gap:2}}>
-              {uiQueenOwner === 1 && <span style={{color:"#ff4444", fontSize:10}}>♛</span>} BLACK
+            <div style={s.scoreLabel}>BLACK</div>
+            <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+              {uiQueenOwner === 1 && <span style={{ color: "#ff4444", fontSize: 22, lineHeight: 1 }}>♛</span>}
+              <div style={s.scoreNum}>{uiScores.b}</div>
             </div>
-            <div style={s.scoreNum}>{uiScores.b}</div>
           </div>
         </div>
 
@@ -1188,7 +1190,7 @@ const s = {
   header: {
     display: "flex", alignItems: "center", justifyContent: "space-between",
     width: "100%", padding: "2px 4px", flexShrink: 0,
-  }, 
+  },
   headerTitle: {
     fontFamily: "'Bebas Neue',sans-serif",
     fontSize: 16, letterSpacing: 5, color: "#f0e8d0",
