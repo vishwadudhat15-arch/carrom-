@@ -992,15 +992,15 @@ export default function CarromGame() {
             <button style={s.menuBtn} onClick={goMenu}>← MENU</button>
             <div style={{ ...s.scoreHeaderBox, ...(uiTurn === 0 ? s.scoreActive : {}) }}>
               <div style={s.scoreNumSmall}>{uiScores.w}</div>
-              <span style={{ color: uiQueenOwner === 0 ? "#ff4444" : "#554433", fontSize: 18, opacity: uiQueenOwner === 0 ? 1 : 0.3 }}>♛</span>
+              <span style={{ color: uiQueenOwner === 0 ? "#ff4444" : "#554433", fontSize: 24, opacity: uiQueenOwner === 0 ? 1 : 0.3 }}>♛</span>
             </div>
           </div>
-          
+
           <span style={s.headerTitle}>CARROM</span>
 
           <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
             <div style={{ ...s.scoreHeaderBox, ...(uiTurn === 1 ? s.scoreActive : {}) }}>
-              <span style={{ color: uiQueenOwner === 1 ? "#ff4444" : "#554433", fontSize: 18, opacity: uiQueenOwner === 1 ? 1 : 0.3 }}>♛</span>
+              <span style={{ color: uiQueenOwner === 1 ? "#ff4444" : "#554433", fontSize: 24, opacity: uiQueenOwner === 1 ? 1 : 0.3 }}>♛</span>
               <div style={s.scoreNumSmall}>{uiScores.b}</div>
             </div>
             <span style={s.modeTag}>{gameMode === "pvc" ? "🤖" : "👥"}</span>
@@ -1009,33 +1009,41 @@ export default function CarromGame() {
 
         <div style={s.scorebar}>
           <div style={s.centerInfo}>
-            <div style={s.turnText}>
-              {isAITurn ? "🤖 AI thinking…" : gameMode === "pvc" ? "Your Turn" : uiTurn === 0 ? "Beige's Turn" : "Black's Turn"}
-            </div>
-            
-            {/* Top Slider (Player 2 / Black) - Only show when not aiming/shooting or rolling */}
-            {(uiTurn === 1 && !isAITurn && uiPhase === "aim" && powerPct === 0 && !uiStatus.includes("⚡") && !uiStatus.includes("✅")) ? (
-               <div style={{ ...s.sliderWrap, width: "80%", margin: "4px auto" }}>
-                 <input
-                   ref={sliderRef}
-                   type="range"
-                   min={FRAME + SR * 3.2 + 26}
-                   max={BASE - FRAME - SR * 3.2 - 26}
-                   step="0.1"
-                   defaultValue={CX}
-                   onChange={handleSliderChange}
-                   onInput={handleSliderChange}
-                   style={s.positionSlider}
-                 />
-               </div>
-            ) : (
+            {/* TOP BAR CONTENT */}
+            {uiTurn === 0 ? (
+              /* P1 is playing: Show their SPEED here (Opposite Side) */
               <>
+                <div style={s.turnText}>Beige's Turn</div>
                 <div style={s.powerTrack}>
                   <div style={{ ...s.powerFill, width: `${powerPct}%`, background: powerColor }} />
                 </div>
                 <div style={s.powerLabel}>{powerPct > 0 ? `Power ${powerPct}%` : "·"}</div>
               </>
-            )}
+            ) : (uiTurn === 1 && !isAITurn) ? (
+              /* P2 is playing: Show their POSITION here (Same Side) */
+              <>
+                <div style={s.turnText}>Black's Turn</div>
+                {(uiPhase === "aim" && powerPct === 0 && !uiStatus.includes("⚡") && !uiStatus.includes("✅")) ? (
+                  <div style={{ ...s.sliderWrap, width: "80%", margin: "4px auto", background: "transparent" }}>
+                    <input
+                      ref={sliderRef}
+                      type="range"
+                      min={FRAME + SR * 3.2 + 26}
+                      max={BASE - FRAME - SR * 3.2 - 26}
+                      step="0.1"
+                      defaultValue={CX}
+                      onChange={handleSliderChange}
+                      onInput={handleSliderChange}
+                      style={s.positionSlider}
+                    />
+                  </div>
+                ) : (
+                  <div style={{ height: 34 }} /> /* Power is at bottom for P2 */
+                )}
+              </>
+            ) : isAITurn ? (
+              <div style={s.turnText}>🤖 AI thinking…</div>
+            ) : null}
           </div>
         </div>
 
@@ -1052,22 +1060,42 @@ export default function CarromGame() {
           />
         </div>
 
-        <div style={{ 
-          ...s.sliderWrap, 
-          visibility: (uiTurn === 0 && uiPhase === "aim" && powerPct === 0 && !uiStatus.includes("⚡") && !uiStatus.includes("✅")) ? "visible" : "hidden",
-          pointerEvents: (uiTurn === 0 && uiPhase === "aim" && powerPct === 0) ? "auto" : "none" 
-        }}>
-          <input
-            ref={sliderRef}
-            type="range"
-            min={FRAME + SR * 3.2 + 26}
-            max={BASE - FRAME - SR * 3.2 - 26}
-            step="0.1"
-            defaultValue={CX}
-            onChange={handleSliderChange}
-            onInput={handleSliderChange}
-            style={s.positionSlider}
-          />
+        <div style={{ ...s.scorebar, marginTop: 4 }}>
+          <div style={s.centerInfo}>
+            {/* BOTTOM BAR CONTENT */}
+            {uiTurn === 1 ? (
+              /* P2 is playing: Show their SPEED here (Opposite Side) */
+              <>
+                <div style={s.turnText}>{isAITurn ? "🤖 AI thinking…" : "Black's Turn"}</div>
+                <div style={s.powerTrack}>
+                  <div style={{ ...s.powerFill, width: `${powerPct}%`, background: powerColor }} />
+                </div>
+                <div style={s.powerLabel}>{powerPct > 0 ? `Power ${powerPct}%` : "·"}</div>
+              </>
+            ) : (uiTurn === 0 && !isAITurn) ? (
+              /* P1 is playing: Show their POSITION here (Same Side) */
+              <>
+                <div style={s.turnText}>Beige's Turn</div>
+                {(uiPhase === "aim" && powerPct === 0 && !uiStatus.includes("⚡") && !uiStatus.includes("✅")) ? (
+                  <div style={{ ...s.sliderWrap, width: "80%", margin: "4px auto", background: "transparent" }}>
+                    <input
+                      ref={sliderRef}
+                      type="range"
+                      min={FRAME + SR * 3.2 + 26}
+                      max={BASE - FRAME - SR * 3.2 - 26}
+                      step="0.1"
+                      defaultValue={CX}
+                      onChange={handleSliderChange}
+                      onInput={handleSliderChange}
+                      style={s.positionSlider}
+                    />
+                  </div>
+                ) : (
+                  <div style={{ height: 34 }} /> /* Power is at top for P1 */
+                )}
+              </>
+            ) : null}
+          </div>
         </div>
 
         <div style={s.statusBar}>{uiStatus || "\u00A0"}</div>
@@ -1233,14 +1261,14 @@ const s = {
     borderRadius: 4, padding: "3px 8px", flexShrink: 0,
   },
   scoreHeaderBox: {
-    display: "flex", alignItems: "center", gap: 4, padding: "2px 6px",
-    borderRadius: 4, background: "rgba(0,0,0,0.4)", border: "1px solid transparent",
-    transition: "border-color 0.3s",
+    display: "flex", alignItems: "center", gap: 8, padding: "4px 12px",
+    borderRadius: 6, background: "rgba(0,0,0,0.5)", border: "2px solid transparent",
+    transition: "all 0.3s",
   },
-  scoreActive: { borderColor: "#c07030" },
+  scoreActive: { borderColor: "#c07030", background: "rgba(192, 112, 48, 0.15)" },
   scoreNumSmall: {
     fontFamily: "'Bebas Neue',sans-serif",
-    fontSize: 20, color: "#f0e8d0", lineHeight: 1,
+    fontSize: 34, color: "#f0e8d0", lineHeight: 1,
   },
   scoreCircle: {
     width: 14, height: 14, borderRadius: "50%",
