@@ -278,20 +278,7 @@ function drawBoard(ctx) {
   // Center red dot
   redDot(CX, CY, 9);
 
-  // 6. Labels
-  ctx.save();
-  ctx.fillStyle = "#fff"; ctx.fillRect(CX - 40, 6, 80, 20);
-  ctx.textAlign = "center"; ctx.textBaseline = "middle";
-  ctx.font = "bold 11px sans-serif"; ctx.fillStyle = "#111";
-  ctx.fillText("PRO SERIES", CX, 13);
-  ctx.fillText("CARROM", CX, 23);
-  ctx.strokeStyle = "#fff"; ctx.lineWidth = 1; ctx.strokeRect(CX - 41, 5, 82, 22);
-
-  ctx.translate(CX, BASE - 16); ctx.rotate(Math.PI);
-  ctx.fillStyle = "#fff"; ctx.fillRect(-40, -10, 80, 20);
-  ctx.fillStyle = "#111"; ctx.fillText("PRO SERIES", 0, -3); ctx.fillText("CARROM", 0, 7);
-  ctx.strokeStyle = "#fff"; ctx.lineWidth = 1; ctx.strokeRect(-41, -11, 82, 22);
-  ctx.restore();
+  // 6. Labels removed.
 
   ctx.save();
   ctx.font = "bold 9px sans-serif"; ctx.fillStyle = "#111";
@@ -1188,13 +1175,13 @@ const s = {
     display: "flex", flexDirection: "column", alignItems: "center",
     gap: 2,
     width: "100%", maxWidth: "min(99vh,99vw)",
-    height: "100dvh", minHeight: 0,
+    height: "auto",
     padding: "2px",
   },
   header: {
     display: "flex", alignItems: "center", justifyContent: "space-between",
     width: "100%", padding: "2px 4px", flexShrink: 0,
-  },
+  }, 
   headerTitle: {
     fontFamily: "'Bebas Neue',sans-serif",
     fontSize: 16, letterSpacing: 5, color: "#f0e8d0",
@@ -1238,9 +1225,9 @@ const s = {
   canvasWrap: {
     borderRadius: 4, overflow: "hidden",
     boxShadow: "0 8px 48px rgba(0,0,0,0.9)",
-    flex: "1 1 0", minHeight: 0, minWidth: 0,
+    flex: "none",
     display: "flex", alignItems: "center", justifyContent: "center",
-    width: "100%",
+    width: "100%", height: "auto", aspectRatio: "1/1",
   },
   canvas: {
     display: "block", width: "auto", height: "100%",
