@@ -520,6 +520,7 @@ export default function CarromGame() {
   const [uiScores, setUiScores] = useState({ w: 9, b: 9 });
   const [uiQueenOwner, setUiQueenOwner] = useState(-1);
   const [uiPower, setUiPower] = useState(0);
+  const [uiPhase, setUiPhase] = useState("aim");
   const [uiStatus, setUiStatus] = useState("");
   const [uiWinner, setUiWinner] = useState({ player: "", pts: 0 });
   const [gameMode, setGameMode] = useState("pvp");
@@ -539,7 +540,9 @@ export default function CarromGame() {
   const returnQueen = useCallback((gs) => {
     const q = gs.pieces.find((p) => p.type === "queen");
     if (q) {
-      q.x = CX; q.y = CY; q.vx = 0; q.vy = 0;
+      q.x = CX + (Math.random() - 0.5) * 0.2;
+      q.y = CY + (Math.random() - 0.5) * 0.2;
+      q.vx = 0; q.vy = 0;
       q.pocketed = false; q.sinking = false; q.sinkScale = 1;
     }
     gs.queenOut = true;
@@ -570,6 +573,7 @@ export default function CarromGame() {
     gs.power = 0;
     gs.dragMode = null;
     setUiPower(0);
+    setUiPhase("rolling");
   }, []);
 
   const doAI = useCallback(() => {
@@ -618,8 +622,8 @@ export default function CarromGame() {
       const pocketedList = gs.pieces.filter(p => p.type === type && p.pocketed);
       for (let i = 0; i < Math.min(count, pocketedList.length); i++) {
         const c = pocketedList[i];
-        c.x = CX + (scatter ? (Math.random() - 0.5) * 40 : 0);
-        c.y = CY + (scatter ? (Math.random() - 0.5) * 40 : 0);
+        c.x = CX + (scatter ? (Math.random() - 0.5) * 40 : (Math.random() - 0.5) * 0.2);
+        c.y = CY + (scatter ? (Math.random() - 0.5) * 40 : (Math.random() - 0.5) * 0.2);
         c.vx = 0; c.vy = 0;
         c.pocketed = false; c.sinking = false; c.sinkScale = 1;
         returned++;
@@ -713,6 +717,7 @@ export default function CarromGame() {
       g.dragMode = null;
       setUiPower(0);
       setUiTurn(nextTurn);
+      setUiPhase("aim");
       setUiStatus(nextTurn === 0 ? "Beige's turn — drag to aim" : "Black's turn — drag to aim");
       if (gameMode === "pvc" && nextTurn === 1) aiTimerRef.current = setTimeout(doAI, 900);
     }, 750);
@@ -862,7 +867,7 @@ export default function CarromGame() {
     setGameMode(mode);
     setUiTurn(0); setUiScores({ w: 9, b: 9 });
     setUiQueenOwner(-1);
-    setUiPower(0); setUiStatus("Beige's turn — drag to aim");
+    setUiPower(0); setUiPhase("aim"); setUiStatus("Beige's turn — drag to aim");
     setUiWinner({ player: "", pts: 0 }); setScreen("game");
   }, [resetStriker]);
 
@@ -983,38 +988,54 @@ export default function CarromGame() {
       <style>{globalCss}</style>
       <div style={s.gameWrap}>
         <div style={s.header}>
-          <button style={s.menuBtn} onClick={goMenu}>← MENU</button>
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <button style={s.menuBtn} onClick={goMenu}>← MENU</button>
+            <div style={{ ...s.scoreHeaderBox, ...(uiTurn === 0 ? s.scoreActive : {}) }}>
+              <div style={s.scoreNumSmall}>{uiScores.w}</div>
+              <span style={{ color: uiQueenOwner === 0 ? "#ff4444" : "#554433", fontSize: 18, opacity: uiQueenOwner === 0 ? 1 : 0.3 }}>♛</span>
+            </div>
+          </div>
+          
           <span style={s.headerTitle}>CARROM</span>
-          <span style={s.modeTag}>{gameMode === "pvc" ? "🤖 vs AI" : "👥 2P"}</span>
+
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <div style={{ ...s.scoreHeaderBox, ...(uiTurn === 1 ? s.scoreActive : {}) }}>
+              <span style={{ color: uiQueenOwner === 1 ? "#ff4444" : "#554433", fontSize: 18, opacity: uiQueenOwner === 1 ? 1 : 0.3 }}>♛</span>
+              <div style={s.scoreNumSmall}>{uiScores.b}</div>
+            </div>
+            <span style={s.modeTag}>{gameMode === "pvc" ? "🤖" : "👥"}</span>
+          </div>
         </div>
 
         <div style={s.scorebar}>
-          <div style={{ ...s.scoreBox, ...(uiTurn === 0 ? s.scoreActive : {}) }}>
-            <div style={s.scoreCircle} />
-            <div style={s.scoreLabel}>BEIGE</div>
-            <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
-              <div style={s.scoreNum}>{uiScores.w}</div>
-              <span style={{ color: uiQueenOwner === 0 ? "#ff4444" : "#554433", fontSize: 22, lineHeight: 1, opacity: uiQueenOwner === 0 ? 1 : 0.3, transition: "all 0.3s" }}>♛</span>
-            </div>
-          </div>
-
           <div style={s.centerInfo}>
             <div style={s.turnText}>
               {isAITurn ? "🤖 AI thinking…" : gameMode === "pvc" ? "Your Turn" : uiTurn === 0 ? "Beige's Turn" : "Black's Turn"}
             </div>
-            <div style={s.powerTrack}>
-              <div style={{ ...s.powerFill, width: `${powerPct}%`, background: powerColor }} />
-            </div>
-            <div style={s.powerLabel}>{powerPct > 0 ? `Power ${powerPct}%` : "·"}</div>
-          </div>
-
-          <div style={{ ...s.scoreBox, ...(uiTurn === 1 ? s.scoreActive : {}) }}>
-            <div style={{ ...s.scoreCircle, background: "#1a1a1a", border: "1px solid #555" }} />
-            <div style={s.scoreLabel}>BLACK</div>
-            <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
-              <span style={{ color: uiQueenOwner === 1 ? "#ff4444" : "#554433", fontSize: 22, lineHeight: 1, opacity: uiQueenOwner === 1 ? 1 : 0.3, transition: "all 0.3s" }}>♛</span>
-              <div style={s.scoreNum}>{uiScores.b}</div>
-            </div>
+            
+            {/* Top Slider (Player 2 / Black) - Only show when not aiming/shooting or rolling */}
+            {(uiTurn === 1 && !isAITurn && uiPhase === "aim" && powerPct === 0 && !uiStatus.includes("⚡") && !uiStatus.includes("✅")) ? (
+               <div style={{ ...s.sliderWrap, width: "80%", margin: "4px auto" }}>
+                 <input
+                   ref={sliderRef}
+                   type="range"
+                   min={FRAME + SR * 3.2 + 26}
+                   max={BASE - FRAME - SR * 3.2 - 26}
+                   step="0.1"
+                   defaultValue={CX}
+                   onChange={handleSliderChange}
+                   onInput={handleSliderChange}
+                   style={s.positionSlider}
+                 />
+               </div>
+            ) : (
+              <>
+                <div style={s.powerTrack}>
+                  <div style={{ ...s.powerFill, width: `${powerPct}%`, background: powerColor }} />
+                </div>
+                <div style={s.powerLabel}>{powerPct > 0 ? `Power ${powerPct}%` : "·"}</div>
+              </>
+            )}
           </div>
         </div>
 
@@ -1031,7 +1052,11 @@ export default function CarromGame() {
           />
         </div>
 
-        <div style={{ ...s.sliderWrap, ...(isAITurn || powerPct > 0 ? { visibility: "hidden", pointerEvents: "none" } : {}) }}>
+        <div style={{ 
+          ...s.sliderWrap, 
+          visibility: (uiTurn === 0 && uiPhase === "aim" && powerPct === 0 && !uiStatus.includes("⚡") && !uiStatus.includes("✅")) ? "visible" : "hidden",
+          pointerEvents: (uiTurn === 0 && uiPhase === "aim" && powerPct === 0) ? "auto" : "none" 
+        }}>
           <input
             ref={sliderRef}
             type="range"
@@ -1207,12 +1232,16 @@ const s = {
     background: "rgba(0,0,0,0.6)", border: "1px solid #222",
     borderRadius: 4, padding: "3px 8px", flexShrink: 0,
   },
-  scoreBox: {
-    textAlign: "center", minWidth: 58, padding: "4px 6px",
-    borderRadius: 4, border: "2px solid transparent", transition: "border-color 0.3s",
-    display: "flex", flexDirection: "column", alignItems: "center", gap: 2,
+  scoreHeaderBox: {
+    display: "flex", alignItems: "center", gap: 4, padding: "2px 6px",
+    borderRadius: 4, background: "rgba(0,0,0,0.4)", border: "1px solid transparent",
+    transition: "border-color 0.3s",
   },
   scoreActive: { borderColor: "#c07030" },
+  scoreNumSmall: {
+    fontFamily: "'Bebas Neue',sans-serif",
+    fontSize: 20, color: "#f0e8d0", lineHeight: 1,
+  },
   scoreCircle: {
     width: 14, height: 14, borderRadius: "50%",
     background: "radial-gradient(circle at 35% 35%, #f5e8c8, #b89050)",
