@@ -993,36 +993,40 @@ export default function CarromGame() {
     <div style={s.root}>
       <style>{globalCss}</style>
       <div style={s.gameWrap}>
-        <div style={{ position: "absolute", top: 10, left: 10, zIndex: 10 }}>
+        <div style={{ width: "100%", padding: "4px 4px 6px", display: "flex", justifyContent: "flex-start", flexShrink: 0 }}>
           <button style={s.menuBtn} onClick={goMenu}>← MENU</button>
         </div>
 
-        <div style={{ ...s.header, marginTop: 40, position: "relative" }}>
-          {/* Player 1 (YOU) Score on the Left */}
-          <div style={{ display: "flex", flexDirection: 'column', alignItems: "center" }}>
-            <div style={{ ...s.scoreHeaderBox, ...(uiTurn === 0 ? s.scoreActive : {}) }}>
-              <div style={s.scoreNumSmall}>{uiScores.w}</div>
-              <span style={{ color: uiQueenOwner === 0 ? "#ff4444" : "#554433", fontSize: 24, opacity: uiQueenOwner === 0 ? 1 : 0.3 }}>♛</span>
-            </div>
-            <div style={{ fontSize: 20, color: "#d4b878", marginTop: -2, fontWeight: 700, letterSpacing: 1 }}>
-              {gameMode === "pvc" ? "YOU" : "P1"}
+        <div style={{ ...s.header }}>
+          {/* Player 1 (YOU) Score (Left) */}
+          <div style={{ flex: 1, display: "flex", justifyContent: "flex-start" }}>
+            <div style={{ display: "flex", flexDirection: 'column', alignItems: "center" }}>
+              <div style={{ ...s.scoreHeaderBox, ...(uiTurn === 0 ? s.scoreActive : {}) }}>
+                <div style={s.scoreNumSmall}>{uiScores.w}</div>
+                <span style={{ color: uiQueenOwner === 0 ? "#ff4444" : "#554433", fontSize: "clamp(14px, 2vh, 22px)", opacity: uiQueenOwner === 0 ? 1 : 0.3 }}>♛</span>
+              </div>
+              <div style={{ fontSize: "clamp(12px, 2.5vw, 15px)", color: "#d4b878", marginTop: -2, fontWeight: 700, letterSpacing: 1, fontFamily: "'Bebas Neue',sans-serif" }}>
+                {gameMode === "pvc" ? "YOU" : "P1"}
+              </div>
             </div>
           </div>
 
-          <span style={{ ...s.headerTitle, position: "absolute", left: "50%", transform: "translateX(-50%)" }}>CARROM</span>
+          <div style={{ flex: 1.5, display: "flex", justifyContent: "center" }}>
+            <span style={s.headerTitle}>CARROM</span>
+          </div>
 
-          {/* Player 2 (AI/P2) Score on the Right */}
-          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          {/* Player 2 (AI/P2) Score (Right) */}
+          <div style={{ flex: 1, display: "flex", justifyContent: "flex-end", alignItems: "center", gap: 4 }}>
             <div style={{ display: "flex", flexDirection: 'column', alignItems: "center" }}>
               <div style={{ ...s.scoreHeaderBox, ...(uiTurn === 1 ? s.scoreActive : {}) }}>
-                <span style={{ color: uiQueenOwner === 1 ? "#ff4444" : "#554433", fontSize: 24, opacity: uiQueenOwner === 1 ? 1 : 0.3 }}>♛</span>
+                <span style={{ color: uiQueenOwner === 1 ? "#ff4444" : "#554433", fontSize: "clamp(14px, 2vh, 22px)", opacity: uiQueenOwner === 1 ? 1 : 0.3 }}>♛</span>
                 <div style={s.scoreNumSmall}>{uiScores.b}</div>
               </div>
-              <div style={{ fontSize: 20, color: "#d4b878", marginTop: -2, fontWeight: 700, letterSpacing: 1 }}>
+              <div style={{ fontSize: "clamp(12px, 2.5vw, 15px)", color: "#d4b878", marginTop: -2, fontWeight: 700, letterSpacing: 1, fontFamily: "'Bebas Neue',sans-serif" }}>
                 {gameMode === "pvc" ? "AI" : "P2"}
               </div>
             </div>
-            <span style={s.modeTag}>{gameMode === "pvc" ? "🤖" : "👥"}</span>
+            <span style={{ ...s.modeTag, fontSize: "clamp(18px, 3vh, 32px)" }}>{gameMode === "pvc" ? "🤖" : "👥"}</span>
           </div>
         </div>
 
@@ -1132,8 +1136,14 @@ export default function CarromGame() {
 const globalCss = `
   @import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;700&family=Bebas+Neue&display=swap');
   * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-  html, body { margin:0; padding:0; width:100%; height:100%; overflow:hidden; position:fixed; touch-action:none; }
-  #root { height:100%; }
+html, body {
+  margin:0;
+  padding:0;
+  width:100%;
+  height:100%;
+  overflow-x: hidden;
+  overflow-y: auto;
+}  #root { height:100%; }
   button { outline:none; }
   button:hover { filter: brightness(1.1); }
   button:active { filter: brightness(0.9); }
@@ -1166,13 +1176,13 @@ const s = {
     border: "1px solid #333", cursor: "pointer", margin: 0,
   },
   root: {
-    width: "100vw", height: "100dvh",
+    width: "100vw",
+    height: "100dvh",
     background: "linear-gradient(160deg,#1a1a1a 0%,#0d0d0d 100%)",
-    display: "flex", alignItems: "center", justifyContent: "center",
-    fontFamily: "'Rajdhani', sans-serif",
-    color: "#f0e8d0",
-    padding: "clamp(4px,1.5vw,12px)",
-    overflow: "hidden",
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "flex-start",   // 🔥 change from center
+    overflowY: "auto",          // 🔥 allow scroll
   },
   menuWrap: {
     display: "flex", flexDirection: "column", alignItems: "center",
@@ -1239,10 +1249,10 @@ const s = {
   ruleDot: { color: "#c07030", flexShrink: 0 },
 
   trophy: { fontSize: 56 },
-  goTitle: {
+  headerTitle: {
     fontFamily: "'Bebas Neue',sans-serif",
-    fontSize: "clamp(32px,9vw,48px)", letterSpacing: 4,
-    color: "#f0e8d0", textAlign: "center",
+    fontSize: "clamp(16px, 5vw, 24px)", letterSpacing: "clamp(1px, 1.5vw, 5px)", color: "#f0e8d0",
+    textAlign: "center",
   },
   goSub: { fontSize: 14, color: "#888" },
   finalScore: {
@@ -1257,21 +1267,26 @@ const s = {
   fsDivider: { width: 1, height: 50, background: "#2a2a1a" },
 
   gameWrap: {
-    display: "flex", flexDirection: "column", alignItems: "center",
-    gap: 2,
-    width: "100%", maxWidth: "min(99vh,99vw)",
-    height: "auto",
-    padding: "2px",
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    width: "100%",
+    maxWidth: "min(500px, 82vh, 98vw)",
+    height: "100dvh",
+    margin: "0 auto",
+    overflow: "hidden",
+    padding: "clamp(2px, 1vh, 8px)",
   },
   header: {
-    display: "flex", alignItems: "center", justifyContent: "space-between",
-    width: "100%", padding: "2px 4px", flexShrink: 0,
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    width: "100%",
+    padding: "2px 4px",
+    flexWrap: "wrap",
+    gap: 4,
   },
-  headerTitle: {
-    fontFamily: "'Bebas Neue',sans-serif",
-    fontSize: 24, letterSpacing: 5, color: "#f0e8d0",
-  },
-  modeTag: { fontSize: 36, filter: "drop-shadow(0 2px 4px rgba(0,0,0,0.5))" },
+  modeTag: { fontSize: "clamp(12px, 3vw, 36px)", filter: "drop-shadow(0 2px 4px rgba(0,0,0,0.5))" },
   menuBtn: {
     background: "transparent", border: "1px solid #444",
     color: "#aaa", padding: "6px 16px", borderRadius: 4,
@@ -1292,7 +1307,7 @@ const s = {
   scoreActive: { borderColor: "#c07030", background: "rgba(192, 112, 48, 0.15)" },
   scoreNumSmall: {
     fontFamily: "'Bebas Neue',sans-serif",
-    fontSize: 34, color: "#f0e8d0", lineHeight: 1,
+    fontSize: "clamp(20px, 4.5vh, 34px)", color: "#f0e8d0", lineHeight: 1,
   },
   scoreCircle: {
     width: 14, height: 14, borderRadius: "50%",
@@ -1313,16 +1328,22 @@ const s = {
   powerFill: { height: "100%", borderRadius: 3, transition: "width 0.04s, background 0.08s" },
   powerLabel: { fontSize: 9, color: "#443322", letterSpacing: 1, marginTop: 3 },
   canvasWrap: {
-    borderRadius: 4, overflow: "hidden",
-    boxShadow: "0 8px 48px rgba(0,0,0,0.9)",
-    flex: "none",
-    display: "flex", alignItems: "center", justifyContent: "center",
-    width: "100%", height: "auto", aspectRatio: "1/1",
+    flex: 1,
+    minHeight: 0,
+    width: "100%",
+    maxWidth: "100%",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    margin: "2px 0",
   },
   canvas: {
-    display: "block", width: "auto", height: "100%",
-    maxWidth: "100%", maxHeight: "100%",
-    aspectRatio: "1/1", touchAction: "none", cursor: "crosshair",
+    display: "block",
+    maxWidth: "100%",
+    maxHeight: "100%",
+    aspectRatio: "1/1",
+    touchAction: "none",
+    cursor: "crosshair",
   },
   statusBar: {
     fontSize: "clamp(9px,1.2vw,11px)", color: "#c8a840",
@@ -1332,8 +1353,8 @@ const s = {
     width: "100%", flexShrink: 0,
   },
   hint: {
-    fontSize: 14, color: "#c8a840", fontWeight: 700,
-    letterSpacing: 0.5, textAlign: "center", flexShrink: 0, paddingBottom: 2,
+    fontSize: "clamp(10px, 1.4vh, 14px)", color: "#c8a840", fontWeight: 700,
+    letterSpacing: 0.5, textAlign: "center", flexShrink: 0, paddingBottom: 1,
     textShadow: "0 1px 2px rgba(0,0,0,0.5)",
   },
 };
