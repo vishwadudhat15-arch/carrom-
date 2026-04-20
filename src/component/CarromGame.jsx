@@ -1002,6 +1002,7 @@ export default function CarromGame() {
           <div style={{ flex: 1, display: "flex", justifyContent: "flex-start" }}>
             <div style={{ display: "flex", flexDirection: 'column', alignItems: "center" }}>
               <div style={{ ...s.scoreHeaderBox, ...(uiTurn === 0 ? s.scoreActive : {}) }}>
+                <div style={s.scoreCircleW} />
                 <div style={s.scoreNumSmall}>{uiScores.w}</div>
                 <span style={{ color: uiQueenOwner === 0 ? "#ff4444" : "#554433", fontSize: "clamp(14px, 2vh, 22px)", opacity: uiQueenOwner === 0 ? 1 : 0.3 }}>♛</span>
               </div>
@@ -1021,6 +1022,7 @@ export default function CarromGame() {
               <div style={{ ...s.scoreHeaderBox, ...(uiTurn === 1 ? s.scoreActive : {}) }}>
                 <span style={{ color: uiQueenOwner === 1 ? "#ff4444" : "#554433", fontSize: "clamp(14px, 2vh, 22px)", opacity: uiQueenOwner === 1 ? 1 : 0.3 }}>♛</span>
                 <div style={s.scoreNumSmall}>{uiScores.b}</div>
+                <div style={s.scoreCircleB} />
               </div>
               <div style={{ fontSize: "clamp(12px, 2.5vw, 15px)", color: "#d4b878", marginTop: -2, fontWeight: 700, letterSpacing: 1, fontFamily: "'Bebas Neue',sans-serif" }}>
                 {gameMode === "pvc" ? "AI" : "P2"}
@@ -1315,10 +1317,17 @@ const s = {
     fontFamily: "'Bebas Neue',sans-serif",
     fontSize: "clamp(20px, 4.5vh, 34px)", color: "#f0e8d0", lineHeight: 1,
   },
-  scoreCircle: {
-    width: 14, height: 14, borderRadius: "50%",
-    background: "radial-gradient(circle at 35% 35%, #f5e8c8, #b89050)",
-    border: "1px solid #8a6028",
+  scoreCircleW: {
+    width: "clamp(18px, 2.5vh, 26px)", height: "clamp(18px, 2.5vh, 26px)", borderRadius: "50%",
+    background: "radial-gradient(circle at 35% 35%, #f5e8c8, #d4b882, #b89050)",
+    border: "2px solid #8a6028", boxShadow: "0 2px 8px rgba(0,0,0,0.6)",
+    flexShrink: 0,
+  },
+  scoreCircleB: {
+    width: "clamp(18px, 2.5vh, 26px)", height: "clamp(18px, 2.5vh, 26px)", borderRadius: "50%",
+    background: "radial-gradient(circle at 35% 35%, #555, #1a1a1a, #001)",
+    border: "2px solid #111", boxShadow: "0 2px 8px rgba(0,0,0,0.6)",
+    flexShrink: 0,
   },
   scoreLabel: { fontSize: 8, letterSpacing: 1.5, color: "#665544" },
   scoreNum: {
