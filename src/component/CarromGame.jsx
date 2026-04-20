@@ -1181,12 +1181,16 @@ const s = {
     background: "linear-gradient(160deg,#1a1a1a 0%,#0d0d0d 100%)",
     display: "flex",
     justifyContent: "center",
-    alignItems: "flex-start",   // 🔥 change from center
-    overflowY: "auto",          // 🔥 allow scroll
+    alignItems: "center",
+    fontFamily: "'Rajdhani', sans-serif",
+    color: "#f0e8d0",
+    padding: "clamp(8px, 2vh, 24px)",
+    overflow: "hidden",
   },
   menuWrap: {
     display: "flex", flexDirection: "column", alignItems: "center",
-    gap: 6, maxWidth: 340, width: "100%",
+    justifyContent: "center",
+    gap: 12, maxWidth: 360, width: "100%",
   },
   boardPreview: {
     width: 70, height: 70, background: "#e8d498",
@@ -1208,19 +1212,21 @@ const s = {
     background: "radial-gradient(circle at 35% 35%, #ff5555, #880000)",
     gridColumn: 2, gridRow: 2,
   },
-  brandRow: { display: "flex", alignItems: "center", gap: 8 },
+  brandRow: { display: "flex", alignItems: "center", justifyContent: "center", gap: 8, textAlign: "center" },
   brandZike: {
     fontFamily: "'Bebas Neue', sans-serif",
     fontSize: 28, letterSpacing: 6, color: "#fff",
     textShadow: "0 0 20px rgba(255,255,255,0.3)",
+    textAlign: "center",
   },
   menuTitle: {
     fontFamily: "'Bebas Neue', sans-serif",
-    fontSize: "clamp(36px,10vw,56px)",
-    letterSpacing: 8, color: "#f0e8d0", margin: 0,
+    fontSize: "clamp(32px, 8vw, 56px)",
+    letterSpacing: "clamp(4px, 1.5vw, 8px)", color: "#f0e8d0", margin: 0,
     textShadow: "0 2px 12px rgba(0,0,0,0.8)",
+    textAlign: "center",
   },
-  menuSub: { fontSize: 11, color: "#888", fontStyle: "italic", margin: 0, letterSpacing: 1 },
+  menuSub: { fontSize: 13, color: "#888", fontStyle: "italic", margin: 0, letterSpacing: 1, textAlign: "center" },
   btnGroup: { display: "flex", flexDirection: "column", alignItems: "center", gap: 8, width: "100%" },
   primaryBtn: {
     background: "linear-gradient(135deg,#c07030 0%,#7a3810 100%)",
